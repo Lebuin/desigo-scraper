@@ -1,0 +1,30 @@
+services:
+  selenium:
+    image: selenium/standalone-firefox:latest
+    restart: unless-stopped
+    shm_size: 2g
+    volumes:
+      - ./downloads:/downloads
+    healthcheck:
+      test: curl --fail http://localhost:4444/ || exit 1
+      interval: 2s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "4444:4444"
+
+  # desigo-scraper:
+  #   build: ./
+  #   restart: unless-stopped
+  #   init: true
+  #   depends_on:
+  #     selenium:
+  #       condition: service_healthy
+  #   env_file:
+  #     - .env
+  #   volumes:
+  #     - /etc/localtime:/etc/localtime:ro
+  #     - /etc/timezone:/etc/timezone:ro
+  #     - ./db:/db
+  #     - ./:/opt/desigo-scraper
+  #     - ./downloads:/downloads

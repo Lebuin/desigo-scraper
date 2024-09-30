@@ -1,0 +1,10 @@
+#!/bin/bash
+set -e
+
+cd /opt/desigo-scraper
+python3 -m desigo_scraper
+status=$?
+
+if [ -n "${HEALTHCHECK_ID}" ]; then
+  wget https://hc-ping.com/${HEALTHCHECK_ID}/$status -T 10 -t 5 -O /dev/null
+fi

@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+
+env >> /etc/environment
+
+/opt/desigo-scraper/job
+
+crontab /opt/desigo-scraper/crontab
+exec cron -f
