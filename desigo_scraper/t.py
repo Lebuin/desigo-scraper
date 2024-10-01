@@ -28,6 +28,7 @@ class ChartView:
 @dataclasses.dataclass
 class DataSeries:
     name: str
+    unit: str
     data: list[tuple[datetime, float]] = dataclasses.field(default_factory=list)
 
     def merge(self, other: 'DataSeries'):

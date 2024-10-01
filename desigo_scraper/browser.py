@@ -182,8 +182,8 @@ class Browser:
         data: list[t.DataSeries] = []
 
         for elem_header in soup.find_all('th')[1:]:
-            name = elem_header.text
-            data_series = t.DataSeries(name=name)
+            name, unit = elem_header.text.split('\xa0')
+            data_series = t.DataSeries(name=name, unit=unit)
             data.append(data_series)
 
         for elem_row in soup.find_all('tr')[1:]:
