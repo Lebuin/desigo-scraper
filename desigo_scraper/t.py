@@ -1,13 +1,13 @@
 import dataclasses
 import enum
-import typing
 from datetime import datetime
+from typing import TypedDict
 
 
 class Group(enum.Enum):
     BIOTOPE = 'Biotope'
     SPORE = 'De Spore'
-    WIJGAARD = 'Wijgaard'
+    WIJGAARD = 'Wijgaard/WGC'
 
 
 @dataclasses.dataclass(frozen=True)
@@ -20,6 +20,10 @@ class DesigoInstance:
 
 @dataclasses.dataclass(frozen=True)
 class ChartView:
+    """A web page in the Desigo interface containing charts.
+
+    These are the entrypoints for the scraping.
+    """
     group: Group
     name: str
     path: str
@@ -27,6 +31,7 @@ class ChartView:
 
 @dataclasses.dataclass
 class DataSeries:
+    group: Group
     name: str
     unit: str
     data: list[tuple[datetime, float]] = dataclasses.field(default_factory=list)
@@ -35,5 +40,13 @@ class DataSeries:
         if other.name != self.name:
             raise Exception('DataSeries\'s names don\'t match')
 
+        self.unit = other.unit
         self.data += other.data
         self.data.sort(key=lambda t: t[0])
+
+
+class DataSeriesSerialized(TypedDict):
+    group: str
+    name: str
+    unit: str
+    data: list[tuple[str, float]]

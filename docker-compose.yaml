@@ -13,7 +13,7 @@ services:
     ports:
       - "4444:4444"
 
-  # desigo-scraper:
+  # scraper:
   #   build: ./
   #   restart: unless-stopped
   #   init: true

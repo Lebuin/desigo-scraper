@@ -1,6 +1,4 @@
-import json
 import logging
-import os
 import time
 from datetime import datetime
 
@@ -12,7 +10,7 @@ from selenium.webdriver.common.by import By, ByType
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.remote.webelement import WebElement
 
-from . import config, t
+from . import config, t, util
 
 logger = logging.getLogger(__name__)
 
@@ -96,8 +94,8 @@ class Browser:
             time.sleep(1)
 
 
-    def fetch_jsons(self, chart_view: t.ChartView) -> list[t.DataSeries]:
-        logger.info(f'Fetch jsons for {chart_view}')
+    def fetch_data(self, chart_view: t.ChartView) -> list[t.DataSeries]:
+        logger.info(f'Fetch data for {chart_view}')
 
         self._get_chart_view(chart_view)
         self._wait_until_chart_view_loaded()
@@ -110,13 +108,13 @@ class Browser:
         self._wait_for_element(*selectors['period_selector_current']).click()
         self._wait_for_element(*selectors['period_selector_apply']).click()
         self._wait_until_chart_view_loaded()
-        data_this_year = self._download_all_data()
+        data_this_year = self._download_all_data(chart_view)
 
         logger.info('Set the time range to the previous year')
         self._wait_for_element(*selectors['previous_period']).click()
         self._wait_until_chart_view_loaded()
-        data_last_year = self._download_all_data()
-        all_data = self._merge_data_series(data_this_year, data_last_year)
+        data_last_year = self._download_all_data(chart_view)
+        all_data = util.merge_data(data_this_year, data_last_year)
 
         return all_data
 
@@ -149,7 +147,7 @@ class Browser:
         self._wait_for_element(*config.SELECTORS['main']['navbar'])
 
 
-    def _download_all_data(self) -> list[t.DataSeries]:
+    def _download_all_data(self, chart_view: t.ChartView) -> list[t.DataSeries]:
         logger.info('Download data')
         self._wait_for_element(*config.SELECTORS['chart_view']['show_grid'])
         elems_button = self.driver.find_elements(*config.SELECTORS['chart_view']['show_grid'])
@@ -161,13 +159,13 @@ class Browser:
         all_data = []
         for i, elem_container in enumerate(elems_container):
             logger.info(f'Download data for chart {i}')
-            data = self._download_data(elem_container)
+            data = self._download_data(chart_view, elem_container)
             all_data.extend(data)
 
         return all_data
 
 
-    def _download_data(self, elem_container: WebElement) -> list[t.DataSeries]:
+    def _download_data(self, chart_view: t.ChartView, elem_container: WebElement) -> list[t.DataSeries]:
         elem_button = elem_container.find_element(*config.SELECTORS['chart_view']['show_grid'])
         elem_button.click()
 
@@ -183,7 +181,7 @@ class Browser:
 
         for elem_header in soup.find_all('th')[1:]:
             name, unit = elem_header.text.split('\xa0')
-            data_series = t.DataSeries(name=name, unit=unit)
+            data_series = t.DataSeries(group=chart_view.group, name=name, unit=unit)
             data.append(data_series)
 
         for elem_row in soup.find_all('tr')[1:]:
@@ -198,18 +196,3 @@ class Browser:
                     data[i - 1].data.append((timestamp, value))
 
         return data
-
-
-    def _merge_data_series(self, data1: list[t.DataSeries], data2: list[t.DataSeries]) -> list[t.DataSeries]:
-        data = {
-            series.name: series
-            for series in data1
-        }
-
-        for series in data2:
-            if series.name in data:
-                data[series.name].merge(series)
-            else:
-                data[series.name] = series
-
-        return list(data.values())
