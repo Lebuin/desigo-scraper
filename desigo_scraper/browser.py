@@ -6,9 +6,11 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.common.exceptions import (NoSuchElementException,
                                         StaleElementReferenceException)
-from selenium.webdriver.common.by import By, ByType
+from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 from . import config, t, util
 
@@ -45,33 +47,20 @@ class Browser:
         self.driver.get(url)
 
 
-    def _wait_for_element(
-        self,
-        by: ByType,
-        selector: str,
-        parent: WebElement | None=None,
-        timeout: float=10,
-        interval: float=.5,
-    ):
+    def _wait(self, parent: WebElement | None=None, timeout=10.0):
         if parent is None:
             driver = self.driver
         else:
             driver = parent
 
-        start = time.time()
-        while True:
-            try:
-                return driver.find_element(by, selector)
-            except NoSuchElementException:
-                if time.time() - start > timeout:
-                    raise Timeout()
-                else:
-                    time.sleep(interval)
+        return WebDriverWait(driver, timeout)
 
 
     def _wait_until_chart_view_loaded(self):
         logger.info('Wait until the chart view has loaded...')
-        self._wait_for_element(*config.SELECTORS['chart_view']['loader'])
+
+        self._wait()\
+            .until(EC.presence_of_element_located(config.SELECTORS['chart_view']['loader']))
 
         start = time.time()
         loader_text = ''
@@ -103,15 +92,15 @@ class Browser:
         selectors = config.SELECTORS['chart_view']
 
         logger.info('Set the time range to the current year')
-        self._wait_for_element(*selectors['period_selector']).click()
-        self._wait_for_element(*selectors['period_selector_year']).click()
-        self._wait_for_element(*selectors['period_selector_current']).click()
-        self._wait_for_element(*selectors['period_selector_apply']).click()
+        self._wait().until(EC.element_to_be_clickable(selectors['period_selector'])).click()
+        self._wait().until(EC.element_to_be_clickable(selectors['period_selector_year'])).click()
+        self._wait().until(EC.element_to_be_clickable(selectors['period_selector_current'])).click()
+        self._wait().until(EC.element_to_be_clickable(selectors['period_selector_apply'])).click()
         self._wait_until_chart_view_loaded()
         data_this_year = self._download_all_data(chart_view)
 
         logger.info('Set the time range to the previous year')
-        self._wait_for_element(*selectors['previous_period']).click()
+        self._wait().until(EC.element_to_be_clickable(selectors['previous_period'])).click()
         self._wait_until_chart_view_loaded()
         data_last_year = self._download_all_data(chart_view)
         all_data = util.merge_data(data_this_year, data_last_year)
@@ -136,21 +125,23 @@ class Browser:
 
         desigo_instance = config.DESIGO_INSTANCES[group]
 
-        elem_username = self._wait_for_element(*config.SELECTORS['login']['username'])
-        elem_password = self._wait_for_element(*config.SELECTORS['login']['password'])
-        elem_submit = self._wait_for_element(*config.SELECTORS['login']['submit'])
+        self._wait().until(EC.element_to_be_clickable(config.SELECTORS['login']['username']))\
+            .send_keys(desigo_instance.username)
 
-        elem_username.send_keys(desigo_instance.username)
-        elem_password.send_keys(desigo_instance.password)
-        elem_submit.click()
+        self._wait().until(EC.element_to_be_clickable(config.SELECTORS['login']['password']))\
+            .send_keys(desigo_instance.password)
 
-        self._wait_for_element(*config.SELECTORS['main']['navbar'])
+        self._wait().until(EC.element_to_be_clickable(config.SELECTORS['login']['submit']))\
+            .click()
+
+        self._wait().until(EC.presence_of_element_located(config.SELECTORS['main']['navbar']))
 
 
     def _download_all_data(self, chart_view: t.ChartView) -> list[t.DataSeries]:
         logger.info('Download data')
-        self._wait_for_element(*config.SELECTORS['chart_view']['show_grid'])
-        elems_button = self.driver.find_elements(*config.SELECTORS['chart_view']['show_grid'])
+        elems_button = self._wait()\
+            .until(EC.presence_of_all_elements_located(config.SELECTORS['chart_view']['show_grid']))
+
         elems_container = [
             elem_button.find_element(By.XPATH, './../..')
             for elem_button in elems_button
@@ -158,7 +149,7 @@ class Browser:
 
         all_data = []
         for i, elem_container in enumerate(elems_container):
-            logger.info(f'Download data for chart {i}')
+            logger.info(f'Download data for chart {i + 1}')
             data = self._download_data(chart_view, elem_container)
             all_data.extend(data)
 
@@ -166,14 +157,13 @@ class Browser:
 
 
     def _download_data(self, chart_view: t.ChartView, elem_container: WebElement) -> list[t.DataSeries]:
-        elem_button = elem_container.find_element(*config.SELECTORS['chart_view']['show_grid'])
+        elem_button = self._wait(elem_container)\
+            .until(EC.element_to_be_clickable(config.SELECTORS['chart_view']['show_grid']))
         elem_button.click()
 
-        elem_grid = self._wait_for_element(
-            *config.SELECTORS['chart_view']['grid'],
-            parent=elem_container,
-            timeout=20,
-        )
+        elem_grid = self._wait(elem_container, 20)\
+            .until(EC.visibility_of_element_located(config.SELECTORS['chart_view']['grid']))
+
         html_grid = elem_grid.get_attribute('outerHTML') or ''
         soup = BeautifulSoup(html_grid, 'html.parser')
 

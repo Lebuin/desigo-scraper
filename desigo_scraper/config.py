@@ -39,11 +39,11 @@ CHART_VIEWS: list[t.ChartView] = [
         name='Warmtepomp',
         path='/finMobile/desigo#trends?q=@29dea950-5e6d767b',
     ),
-    # t.ChartView(
-    #     group=t.Group.BIOTOPE,
-    #     name='KWh Telling BEO Veld',
-    #     path='/finMobile/desigo#trends?q=@29dea58b-096c33ee'
-    # ),
+    t.ChartView(
+        group=t.Group.BIOTOPE,
+        name='KWh Telling BEO Veld',
+        path='/finMobile/desigo#trends?q=@29dea58b-096c33ee'
+    ),
 ]
 
 

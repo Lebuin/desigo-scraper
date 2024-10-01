@@ -23,7 +23,6 @@ def get_data_from_chart_views(chart_views: list[t.ChartView]) -> list[t.DataSeri
     browser = Browser()
 
     for chart_view in chart_views:
-        logger.info(f'Download data for chart view {chart_view.name}')
         chart_view_data = browser.fetch_data(chart_view)
         data.extend(chart_view_data)
 

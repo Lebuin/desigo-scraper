@@ -28,6 +28,9 @@ class ChartView:
     name: str
     path: str
 
+    def __str__(self):
+        return f'ChartView: {self.group.value} - {self.name}'
+
 
 @dataclasses.dataclass
 class DataSeries:
@@ -41,8 +44,16 @@ class DataSeries:
             raise Exception('DataSeries\'s names don\'t match')
 
         self.unit = other.unit
-        self.data += other.data
-        self.data.sort(key=lambda t: t[0])
+        data = self.data + other.data
+        data_dict = {
+            timestamp: value
+            for timestamp, value in data
+        }
+        data_deduped = sorted(data_dict.items(), key=lambda t: t[0])
+        self.data = data_deduped
+
+    def __str__(self):
+        return f'DataSeries: {self.group.value} - {self.name} ({self.unit})'
 
 
 class DataSeriesSerialized(TypedDict):
