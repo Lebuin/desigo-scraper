@@ -8,8 +8,6 @@ services:
       interval: 2s
       timeout: 5s
       retries: 5
-    ports:
-      - "4444:4444"
 
   scraper:
     build: ./
