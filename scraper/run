@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+
+env >> /etc/environment
+
+/opt/scraper/job
+
+crontab /opt/scraper/crontab
+exec cron -f

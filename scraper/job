@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-cd /opt/desigo-scraper
-python3 -m desigo_scraper
+cd /opt/scraper/src
+python3 -m scraper
 status=$?
 
 if [ -n "${HEALTHCHECK_ID}" ]; then
