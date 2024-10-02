@@ -23,3 +23,20 @@ services:
       - /etc/timezone:/etc/timezone:ro
       - ./db:/db
       - ./scraper:/opt/scraper
+
+  server:
+    build: ./server
+    restart: unless-stopped
+    init: true
+    env_file:
+      - .env
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - ./db:/db
+      - ./server:/opt/server
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.desigo-scraper.rule=Host(`desigo-scraper.lenders.dev`)"
+      - "traefik.http.routers.desigo-scraper.tls=true"
+      - "traefik.http.routers.desigo-scraper.tls.certresolver=myresolver"
