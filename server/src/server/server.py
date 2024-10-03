@@ -36,9 +36,12 @@ def parse_datetime(request: Request, arg: str, default: datetime):
 
 
 def get_data() -> list[t.DataSeriesSerialized]:
-    with open(app.config['DB_PATH'], 'r') as f:
-        data = json.load(f)
-    return data
+    try:
+        with open(app.config['DB_PATH'], 'r') as f:
+            data = json.load(f)
+        return data
+    except FileNotFoundError:
+        return []
 
 
 def filter_data(
