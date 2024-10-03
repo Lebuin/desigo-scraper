@@ -5,9 +5,9 @@ services:
     shm_size: 2g
     healthcheck:
       test: curl --fail http://localhost:4444/ || exit 1
-      interval: 2s
+      interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
 
   scraper:
     build: ./scraper
