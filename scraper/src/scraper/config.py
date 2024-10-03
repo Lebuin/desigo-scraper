@@ -2,6 +2,7 @@ import logging
 import os
 
 from selenium.webdriver.common.by import By, ByType
+import pytz
 
 from . import t
 
@@ -22,6 +23,7 @@ DESIGO_INSTANCES: dict[t.Group, t.DesigoInstance] = {
         host=os.environ['BIOTOPE_HOST'],
         username=os.environ['BIOTOPE_USERNAME'],
         password=os.environ['BIOTOPE_PASSWORD'],
+        timezone=pytz.timezone('Europe/Brussels'),
     )
 }
 

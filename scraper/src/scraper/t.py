@@ -2,6 +2,7 @@ import dataclasses
 import enum
 from datetime import datetime
 from typing import TypedDict
+import pytz.tzinfo
 
 
 class Group(enum.Enum):
@@ -16,6 +17,7 @@ class DesigoInstance:
     host: str
     username: str
     password: str
+    timezone: pytz.tzinfo.StaticTzInfo | pytz.tzinfo.DstTzInfo
 
 
 @dataclasses.dataclass(frozen=True)

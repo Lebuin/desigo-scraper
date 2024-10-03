@@ -157,6 +157,8 @@ class Browser:
 
 
     def _download_data(self, chart_view: t.ChartView, elem_container: WebElement) -> list[t.DataSeries]:
+        desigo_instance = config.DESIGO_INSTANCES[chart_view.group]
+
         elem_button = self._wait(elem_container)\
             .until(EC.element_to_be_clickable(config.SELECTORS['chart_view']['show_grid']))
         elem_button.click()
@@ -177,7 +179,13 @@ class Browser:
         for elem_row in soup.find_all('tr')[1:]:
             elems_cell = elem_row.find_all('td')
             elem_timestamp = elems_cell[0]
-            timestamp = datetime.strptime(elem_timestamp.text, '%d.%m.%Y %H:%M:%S:%f')
+            # I'm not sure that the timezone is handled correctly. The Desigo charts don't show
+            # any timezone, so the question is what will happen to historical data when we switch
+            # from summer to winter time or vice versa. Will the chart show the times as there were
+            # when the data was recorded? Or will the new time offset be applied to the historical
+            # timestamps? The current implementation assumes the former based on nothing.
+            timestamp = datetime.strptime(elem_timestamp.text, '%d.%m.%Y %H:%M:%S:%f')\
+                .astimezone(desigo_instance.timezone)
 
             for i in range(1, len(elems_cell)):
                 elem_data = elems_cell[i]
