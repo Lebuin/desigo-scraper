@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 
 from flask import request
 from flask.wrappers import Request
@@ -15,8 +15,9 @@ basic_auth = BasicAuth(app)
 
 @app.route('/data', methods=['GET'])
 def data():
-    start = parse_datetime(request, 'start', datetime.now() - app.config['DEFAULT_TIME_RANGE'])
-    end = parse_datetime(request, 'end', datetime.now())
+    now = datetime.now(tz=timezone.utc)
+    start = parse_datetime(request, 'start', now - app.config['DEFAULT_TIME_RANGE'])
+    end = parse_datetime(request, 'end', now)
 
     data = get_data()
     filtered_data = filter_data(data, start, end)
@@ -30,9 +31,14 @@ def parse_datetime(request: Request, arg: str, default: datetime):
         return default
     else:
         try:
-            return datetime.fromisoformat(arg_value)
+            dt = datetime.fromisoformat(arg_value)
         except ValueError:
             raise Exception(f"'{arg}': provide a valid ISO 8601 datetime")
+
+        # If not timezone is provided we fall back to the server's timezone
+        if dt.tzinfo is None:
+            dt = dt.astimezone(timezone.utc)
+        return dt
 
 
 def get_data() -> list[t.DataSeriesSerialized]:
