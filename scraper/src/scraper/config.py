@@ -44,7 +44,12 @@ CHART_VIEWS: list[t.ChartView] = [
     t.ChartView(
         group=t.Group.BIOTOPE,
         name='KWh Telling BEO Veld',
-        path='/finMobile/desigo#trends?q=@29dea58b-096c33ee'
+        path='/finMobile/desigo#trends?q=@29dea58b-096c33ee',
+    ),
+    t.ChartView(
+        group=t.Group.BIOTOPE,
+        name='Kring Woonunits',
+        path='/finMobile/desigo#trends?q=@29dea85f-511f4954',
     ),
 ]
 
