@@ -2,7 +2,7 @@
 set -e
 
 cd /opt/scraper/src
-python3 -m scraper
+/usr/local/bin/python -m scraper
 status=$?
 
 if [ -n "${HEALTHCHECK_ID}" ]; then
