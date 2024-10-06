@@ -38,18 +38,8 @@ DESIGO_INSTANCES: dict[t.Group, t.DesigoInstance] = {
 CHART_VIEWS: list[t.ChartView] = [
     t.ChartView(
         group=t.Group.BIOTOPE,
-        name='Warmtepomp',
-        path='/finMobile/desigo#trends?q=@29dea950-5e6d767b',
-    ),
-    t.ChartView(
-        group=t.Group.BIOTOPE,
-        name='KWh Telling BEO Veld',
-        path='/finMobile/desigo#trends?q=@29dea58b-096c33ee',
-    ),
-    t.ChartView(
-        group=t.Group.BIOTOPE,
-        name='Kring Woonunits',
-        path='/finMobile/desigo#trends?q=@29dea85f-511f4954',
+        name='ScraperData',
+        path='/finMobile/desigo#trends?q=@2e954e57-8e3100ce',
     ),
 ]
 
