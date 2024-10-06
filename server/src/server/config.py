@@ -1,7 +1,7 @@
 import os
 from datetime import timedelta
 
-DB_PATH = os.environ.get('DB_PATH', '/db/sqlite_scraper.json')
+DB_PATH = os.environ.get('DB_PATH', '/db/desigo_scraper.json')
 
 BASIC_AUTH_USERNAME = os.environ['BASIC_AUTH_USERNAME']
 BASIC_AUTH_PASSWORD = os.environ['BASIC_AUTH_PASSWORD']
