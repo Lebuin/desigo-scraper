@@ -1,1 +1,1 @@
-0 1 * * * /opt/scraper/job >/proc/1/fd/1 2>/proc/1/fd/2
+0 * * * * /opt/scraper/job >/proc/1/fd/1 2>/proc/1/fd/2
