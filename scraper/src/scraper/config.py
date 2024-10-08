@@ -13,7 +13,7 @@ LOG_LEVEL = os.environ.get('LOG_LEVEL', logging.INFO)
 SELENIUM_HOST = os.environ.get('SELENIUM_HOST', 'selenium:4444')
 # The path to the "db" file (which is not really a database, just a json file). If developing
 # outside the docker you will want to override this in you .env file.
-DB_PATH = os.environ.get('DB_PATH', '/db/sqlite_scraper.json')
+DB_PATH = os.environ.get('DB_PATH', '/db/desigo_scraper.json')
 
 
 # Every group has their own Desigo instance. Set their properties in the .env file.
