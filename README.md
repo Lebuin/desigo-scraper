@@ -1,3 +1,35 @@
+# Configure VPN
+
+The Desigo instances are all in private networks that are not publicly accessible. You need to establish a permanent VPN connection to each of these networks for this script to work.
+
+## One-time setup: install OpenVPN
+
+```
+sudo apt install openvpn
+```
+
+## For each of the networks
+
+- Download the .ovpn file, and place it in `/etc/openvpn/config/<name>.ovpn` (create the folder if it doesn't exist). Make sure the file contains a line `auth-user-pass /etc/openvpn/credentials/<name>`
+- Create a credentials file `/etc/openvpn/credentials/<name>` with the username and password each on its own line. The file should be owned by root, and have permissions 600.
+- Create a service file `/etc/systemd/system/<name>-vpn.service` with the following contents:
+
+```
+[Unit]
+Description=Open a VPN connection to <Name>
+
+[Service]
+ExecStart=openvpn --config /etc/openvpn/profiles/<name>.ovpn --data-ciphers AES-256-GCM:AES-256-CBC:AES-128-GCM:CHACHA20-POLY1305
+Restart=always
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target
+```
+
+- Enable the service: `sudo systemctl daemon-reload && sudo systemctl enable --now <name>-vpn`
+
+
 # Debug a chart view
 
 ```py
