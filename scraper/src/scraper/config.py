@@ -39,7 +39,7 @@ CHART_VIEWS: list[t.ChartView] = [
     t.ChartView(
         group=t.Group.BIOTOPE,
         name='ScraperData',
-        path='/finMobile/desigo#trends?q=@2e954e57-8e3100ce',
+        path='/finMobile/desigo#trends?q=@2f080569-76de25a2',
     ),
 ]
 
